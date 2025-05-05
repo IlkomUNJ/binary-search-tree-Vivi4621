@@ -14,13 +14,27 @@ fn main() {
     test_binary_search_tree();
 }
 
+fn in_order_traversal(node: &Option<BstNodeLink>) {
+    if let Some(ref n) = node {
+        in_order_traversal(&n.borrow().left);
+        print!("{} ", n.borrow().key.unwrap());
+        in_order_traversal(&n.borrow().right);
+    }
+}
+
 fn test_binary_search_tree(){
-    let rootlink: BstNodeLink = BstNode::new_bst_nodelink(15);
-    rootlink.borrow_mut().add_left_child(&rootlink, 6);
-    rootlink.borrow_mut().add_right_child(&rootlink, 18);
+    let mut root: Option<BstNodeLink> = None;
+    let values = vec![15, 6, 18, 3, 7, 17, 20, 2, 4, 13, 9];
+    for &val in &values {
+        tree_insert(&mut root, val);
+    }
+
+println!("Tree contents (in-order):");
+in_order_traversal(&root);
+println!();
 
     //add right subtree
-    let right_subtree: &Option<BstNodeLink> = &rootlink.borrow().right;
+    let right_subtree: &Option<BstNodeLink> = &root.as_ref().unwrap().borrow().right;
     if let Some(right_tree_extract) = right_subtree {
         right_tree_extract
             .borrow_mut()
@@ -31,7 +45,7 @@ fn test_binary_search_tree(){
     }
 
     //add left subtree
-    let left_subtree: &Option<BstNodeLink> = &rootlink.borrow().left;
+    let left_subtree: &Option<BstNodeLink> = &root.as_ref().unwrap().borrow().left;
     if let Some(left_tree_extract) = left_subtree {
         left_tree_extract
             .borrow_mut()
@@ -60,7 +74,7 @@ fn test_binary_search_tree(){
 
     //print the tree at this time
     let main_tree_path = "bst_graph.dot";
-    generate_dotfile_bst(&rootlink, main_tree_path);
+    generate_dotfile_bst(&root.as_ref().unwrap(), main_tree_path);
 
     //tree search test
     let search_keys = vec![15, 9, 22];
@@ -68,7 +82,7 @@ fn test_binary_search_tree(){
     for &key in search_keys.iter() {
         print!("tree search result of key {} is ", key);
 
-        if let Some(node_result) = rootlink.borrow().tree_search(&key) {
+        if let Some(node_result) = root.as_ref().unwrap().borrow().tree_search(&key) {
             println!("found -> {:?}", node_result.borrow().key);
         } else {
             println!("not found");
@@ -76,11 +90,11 @@ fn test_binary_search_tree(){
     }
 
     //min test
-    let min_node = rootlink.borrow().minimum();
+    let min_node = root.as_ref().unwrap().borrow().minimum();
     println!("minimum result {:?}", min_node.borrow().key);
 
     //max test
-    let max_node = rootlink.borrow().maximum();
+    let max_node = root.as_ref().unwrap().borrow().maximum();
     println!("maximum result {:?}", max_node.borrow().key);
 
     //root node get test
@@ -100,7 +114,7 @@ fn test_binary_search_tree(){
     ];
 
     for &key in query_keys.iter() {
-        if let Some(node) = rootlink.borrow().tree_search(&key) {
+        if let Some(node) = root.as_ref().unwrap().borrow().tree_search(&key) {
             print!("successor of node ({}) is ", key);
 
             if let Some(successor) = BstNode::tree_successor_simpler(&node) {
@@ -117,21 +131,21 @@ fn test_binary_search_tree(){
 #[allow(dead_code)]
 fn test_binary_tree() {
     //create the nodelink of the root node
-    let rootlink: NodeLink = Node::new_nodelink(5);
+    let root.as_ref().unwrap(): NodeLink = Node::new_nodelink(5);
 
     //add a new left node value
-    rootlink.borrow_mut().add_left_child(&rootlink, 3);
+    root.as_ref().unwrap().borrow_mut().add_left_child(&root.as_ref().unwrap(), 3);
     //add a new right node value
-    rootlink.borrow_mut().add_right_child(&rootlink, 7);
+    root.as_ref().unwrap().borrow_mut().add_right_child(&root.as_ref().unwrap(), 7);
 
-    //println!("{:?}", rootlink);
+    //println!("{:?}", root.as_ref().unwrap());
 
     //print the tree at this time
     let mut main_tree_path = "prime.dot";
-    generate_dotfile(&rootlink, main_tree_path);
+    generate_dotfile(&root.as_ref().unwrap(), main_tree_path);
 
     //add new child values to the left subtree
-    let left_subtree = &rootlink.borrow().left;
+    let left_subtree = &root.as_ref().unwrap().borrow().left;
     if let Some(left_tree_extract) = left_subtree {
         left_tree_extract
             .borrow_mut()
@@ -142,7 +156,7 @@ fn test_binary_tree() {
     }
 
     //add new child values to the right subtree
-    let right_subtree = &rootlink.borrow().right;
+    let right_subtree = &root.as_ref().unwrap().borrow().right;
     if let Some(right_tree_extract) = right_subtree {
         right_tree_extract
             .borrow_mut()
@@ -151,14 +165,14 @@ fn test_binary_tree() {
 
     //print the tree again, now been added with more values
     main_tree_path = "prime_t2.dot";
-    generate_dotfile(&rootlink, main_tree_path);
+    generate_dotfile(&root.as_ref().unwrap(), main_tree_path);
 
     //Call tree depth function at this time
-    let recorded_depth = rootlink.borrow().tree_depth();
+    let recorded_depth = root.as_ref().unwrap().borrow().tree_depth();
     println!("Current tree depth: {0}", recorded_depth);
 
     //Call count_nodes function
-    let total_nodes = rootlink.borrow().count_nodes();
+    let total_nodes = root.as_ref().unwrap().borrow().count_nodes();
     println!("Amount of nodes in current tree: {0}", total_nodes);
 
     //Call count_nodes_by_nodelink function, supplied right subtree as parameter
@@ -171,10 +185,10 @@ fn test_binary_tree() {
     //println!("sibling of left subtree {:?}", left_subtree_sibling);
 
     //get the left subtree by value
-    let left_subtree = rootlink.borrow().get_node_by_value(3);
+    let left_subtree = root.as_ref().unwrap().borrow().get_node_by_value(3);
     println!("left subtree seek by value {:?}", left_subtree);
     //get the left subtree by full properties
-    let another_left_subtree = rootlink
+    let another_left_subtree = root.as_ref().unwrap()
         .borrow()
         .get_node_by_full_property(&left_subtree.as_ref().unwrap());
     println!(
@@ -183,25 +197,25 @@ fn test_binary_tree() {
     );
 
     //Discard the right subtree from parent
-    let rootlink2 = rootlink.borrow().get_nodelink_copy();
+    let root.as_ref().unwrap()2 = root.as_ref().unwrap().borrow().get_nodelink_copy();
 
-    let flag = rootlink2.borrow_mut().discard_node_by_value(3);
+    let flag = root.as_ref().unwrap()2.borrow_mut().discard_node_by_value(3);
     println!("status of node deletion: {0}", flag);
 
     //print the tree again
     main_tree_path = "prime_t3.dot";
-    generate_dotfile(&rootlink2, main_tree_path);
+    generate_dotfile(&root.as_ref().unwrap()2, main_tree_path);
 
     //Call tree depth function at this time
     //TODO
-    let depth_now = rootlink2.borrow().tree_depth();
+    let depth_now = root.as_ref().unwrap()2.borrow().tree_depth();
     println!("Depth after discard {0}", depth_now);
 
     //Call count_nodes function
-    let count_now = rootlink2.borrow().count_nodes();
+    let count_now = root.as_ref().unwrap()2.borrow().count_nodes();
     println!("Count nodes after discard {0}", count_now);
 
     //print the tree again
     main_tree_path = "prime_t4.dot";
-    generate_dotfile(&rootlink, main_tree_path);
+    generate_dotfile(&root.as_ref().unwrap(), main_tree_path);
 }
